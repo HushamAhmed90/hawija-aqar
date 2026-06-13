@@ -6,6 +6,7 @@ import ImageGallery from "@/components/ImageGallery";
 import DeleteListing from "@/components/DeleteListing";
 import ShareListing from "@/components/ShareListing";
 import StatTracker from "@/components/StatTracker";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -100,12 +101,7 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
                 className="flex items-center justify-center gap-2 bg-green-500 text-white py-3 rounded-xl font-bold text-lg hover:bg-green-600 transition-colors">
                 📞 {listing.phone}
               </a>
-              <a href={`https://wa.me/964${listing.phone.replace(/^0/, "")}`}
-                target="_blank" rel="noopener noreferrer"
-                onClick={async () => { await fetch(`/api/listings/${listing.id}/stat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "whatsapp" }) }); }}
-                className="flex items-center justify-center gap-2 bg-[#25D366] text-white py-3 rounded-xl font-bold text-lg hover:opacity-90 transition-opacity mt-2">
-                واتساب
-              </a>
+              <WhatsAppButton phone={listing.phone} listingId={listing.id} />
             </div>
             {listing.views && listing.views > 0 ? (
               <div className="flex gap-4 mt-3 text-xs text-gray-400">
