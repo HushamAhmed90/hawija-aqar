@@ -7,11 +7,12 @@ export default function DigitalClock() {
   useEffect(() => {
     const update = () => {
       const now = new Date();
+      const iq = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Baghdad" }));
       setTime({
-        h: String(now.getHours()).padStart(2, "0"),
-        m: String(now.getMinutes()).padStart(2, "0"),
-        s: String(now.getSeconds()).padStart(2, "0"),
-        date: now.toLocaleDateString("ar-IQ", { weekday: "long", year: "numeric", month: "long", day: "numeric" }),
+        h: String(iq.getHours()).padStart(2, "0"),
+        m: String(iq.getMinutes()).padStart(2, "0"),
+        s: String(iq.getSeconds()).padStart(2, "0"),
+        date: iq.toLocaleDateString("ar-IQ", { weekday: "long", year: "numeric", month: "long", day: "numeric" }),
       });
     };
     update();
