@@ -15,6 +15,7 @@ export interface Listing {
   createdAt: Date;
   userId?: string;
   featured?: boolean;
+  sold?: boolean;
   views?: number;
   whatsappClicks?: number;
 }

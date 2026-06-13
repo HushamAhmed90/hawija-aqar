@@ -17,6 +17,8 @@ export default function AdminPage() {
   const [showChangePass, setShowChangePass] = useState(false);
   const [newPass, setNewPass] = useState("");
   const [newPass2, setNewPass2] = useState("");
+  const [sortBy, setSortBy] = useState<"createdAt" | "price" | "views">("createdAt");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   const savedPass = () => (typeof window !== "undefined" ? localStorage.getItem(PASS_KEY) || DEFAULT_PASS : DEFAULT_PASS);
 
@@ -75,11 +77,23 @@ export default function AdminPage() {
     URL.revokeObjectURL(url);
   };
 
-  const filtered = useMemo(() => listings.filter(l => {
-    const matchSearch = l.title.includes(search) || l.village.includes(search) || l.phone.includes(search);
-    const matchType = filterType === "الكل" || l.listingType === filterType;
-    return matchSearch && matchType;
-  }), [listings, search, filterType]);
+  const toggleSort = (col: "createdAt" | "price" | "views") => {
+    if (sortBy === col) setSortDir(d => d === "asc" ? "desc" : "asc");
+    else { setSortBy(col); setSortDir("desc"); }
+  };
+
+  const filtered = useMemo(() => {
+    const f = listings.filter(l => {
+      const matchSearch = l.title.includes(search) || l.village.includes(search) || l.phone.includes(search);
+      const matchType = filterType === "الكل" || l.listingType === filterType;
+      return matchSearch && matchType;
+    });
+    return f.sort((a, b) => {
+      let av = sortBy === "price" ? a.price : sortBy === "views" ? (a.views || 0) : new Date(a.createdAt).getTime();
+      let bv = sortBy === "price" ? b.price : sortBy === "views" ? (b.views || 0) : new Date(b.createdAt).getTime();
+      return sortDir === "asc" ? av - bv : bv - av;
+    });
+  }, [listings, search, filterType, sortBy, sortDir]);
 
   if (!auth) return (
     <>
@@ -187,10 +201,16 @@ export default function AdminPage() {
                   <th className="text-right px-4 py-3 font-medium text-gray-600">النوع</th>
                   <th className="text-right px-4 py-3 font-medium text-gray-600">المنطقة</th>
                   <th className="text-right px-4 py-3 font-medium text-gray-600">الهاتف</th>
-                  <th className="text-right px-4 py-3 font-medium text-gray-600">السعر</th>
-                  <th className="text-right px-4 py-3 font-medium text-gray-600">👁️</th>
+                  <th className="text-right px-4 py-3 font-medium text-gray-600 cursor-pointer hover:text-[#16213e]" onClick={() => toggleSort("price")}>
+                    السعر {sortBy === "price" ? (sortDir === "desc" ? "↓" : "↑") : ""}
+                  </th>
+                  <th className="text-right px-4 py-3 font-medium text-gray-600 cursor-pointer hover:text-[#16213e]" onClick={() => toggleSort("views")}>
+                    👁️ {sortBy === "views" ? (sortDir === "desc" ? "↓" : "↑") : ""}
+                  </th>
                   <th className="text-right px-4 py-3 font-medium text-gray-600">📲</th>
-                  <th className="text-right px-4 py-3 font-medium text-gray-600">التاريخ</th>
+                  <th className="text-right px-4 py-3 font-medium text-gray-600 cursor-pointer hover:text-[#16213e]" onClick={() => toggleSort("createdAt")}>
+                    التاريخ {sortBy === "createdAt" ? (sortDir === "desc" ? "↓" : "↑") : ""}
+                  </th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>

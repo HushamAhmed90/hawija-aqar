@@ -7,6 +7,7 @@ import DeleteListing from "@/components/DeleteListing";
 import ShareListing from "@/components/ShareListing";
 import StatTracker from "@/components/StatTracker";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import SoldButton from "@/components/SoldButton";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -68,6 +69,11 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
           )}
 
           <div className="p-6">
+            {listing.sold && (
+              <div className="bg-gray-800 text-white text-center py-2 rounded-xl mb-4 font-bold text-sm">
+                ✅ تم البيع / الإيجار — هذا الإعلان لم يعد متاحاً
+              </div>
+            )}
             <div className="flex gap-2 mb-3">
               <span className={`text-sm font-bold px-3 py-1 rounded-full ${listing.listingType === "بيع" ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"}`}>
                 {listing.listingType}
@@ -75,6 +81,7 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
               <span className="text-sm bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
                 {listing.propertyType}
               </span>
+              {listing.sold && <span className="text-sm bg-gray-200 text-gray-600 px-3 py-1 rounded-full">مباع</span>}
             </div>
 
             <h1 className="text-2xl font-bold text-[#16213e] mb-2">{listing.title}</h1>
@@ -110,6 +117,7 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
               </div>
             ) : null}
 
+            <SoldButton id={listing.id} phone={listing.phone} initialSold={!!listing.sold} />
             <ShareListing title={listing.title} id={listing.id} />
           </div>
         </div>
