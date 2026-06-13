@@ -2,11 +2,13 @@
 export const dynamic = "force-dynamic";
 import { useState } from "react";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { PropertyType, ListingType } from "@/types/listing";
 import Navbar from "@/components/Navbar";
 import { useRouter } from "next/navigation";
+
+const CLOUDINARY_CLOUD = "dstbkra00";
+const CLOUDINARY_PRESET = "hawija-aqar";
 
 const villages = [
   "الحويجة", "الرياض", "العلم", "الزيدية", "الكيلاني", "أبو عوجة",
@@ -14,10 +16,25 @@ const villages = [
   "أم الزيتون", "الجنابيين", "السبعاوي", "أخرى",
 ];
 
+async function uploadToCloudinary(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", CLOUDINARY_PRESET);
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`,
+    { method: "POST", body: formData }
+  );
+  const data = await res.json();
+  if (!data.secure_url) throw new Error("فشل رفع الصورة");
+  return data.secure_url;
+}
+
 export default function NewListingPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [uploadProgress, setUploadProgress] = useState("");
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -32,17 +49,41 @@ export default function NewListingPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const handleImages = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length + images.length > 5) {
+      alert("الحد الأقصى 5 صور");
+      return;
+    }
+    setImages((prev) => [...prev, ...files]);
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => setPreviews((prev) => [...prev, ev.target?.result as string]);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeImage = (i: number) => {
+    setImages((prev) => prev.filter((_, idx) => idx !== i));
+    setPreviews((prev) => prev.filter((_, idx) => idx !== i));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
+      let imageUrls: string[] = [];
+      if (images.length > 0) {
+        setUploadProgress("جاري رفع الصور...");
+        imageUrls = await Promise.all(images.map(uploadToCloudinary));
+        setUploadProgress("");
+      }
       await addDoc(collection(db, "listings"), {
         ...form,
         price: Number(form.price),
-        images: [],
+        images: imageUrls,
         createdAt: serverTimestamp(),
       });
-
       router.push("/listings");
     } catch (err) {
       console.error(err);
@@ -117,13 +158,40 @@ export default function NewListingPage() {
               className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#e8b86d] resize-none" />
           </label>
 
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3 text-sm text-yellow-700">
-            📸 إضافة الصور قادمة قريباً — يمكنك نشر الإعلان الآن بدون صور
+          {/* Image Upload */}
+          <div>
+            <span className="block text-sm font-medium text-gray-700 mb-2">صور العقار (حتى 5 صور)</span>
+
+            {previews.length > 0 && (
+              <div className="grid grid-cols-3 gap-2 mb-3">
+                {previews.map((src, i) => (
+                  <div key={i} className="relative">
+                    <img src={src} alt="" className="w-full h-24 object-cover rounded-lg border border-gray-200" />
+                    <button type="button" onClick={() => removeImage(i)}
+                      className="absolute top-1 left-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold hover:bg-red-600">
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {images.length < 5 && (
+              <label className="flex items-center gap-2 cursor-pointer border-2 border-dashed border-gray-300 rounded-lg px-4 py-3 hover:border-[#e8b86d] transition-colors">
+                <span className="text-2xl">📸</span>
+                <span className="text-sm text-gray-500">اضغط لإضافة صور</span>
+                <input type="file" accept="image/*" multiple onChange={handleImages} className="hidden" />
+              </label>
+            )}
+
+            {uploadProgress && (
+              <p className="text-sm text-blue-600 mt-2">{uploadProgress}</p>
+            )}
           </div>
 
           <button type="submit" disabled={loading}
             className="bg-[#16213e] text-white py-3 rounded-xl font-bold text-lg hover:bg-[#0f172a] transition-colors disabled:opacity-50">
-            {loading ? "جاري النشر..." : "نشر الإعلان مجاناً"}
+            {loading ? (uploadProgress || "جاري النشر...") : "نشر الإعلان مجاناً"}
           </button>
         </form>
       </div>
