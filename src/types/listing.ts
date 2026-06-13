@@ -14,4 +14,7 @@ export interface Listing {
   images: string[];
   createdAt: Date;
   userId?: string;
+  featured?: boolean;
+  views?: number;
+  whatsappClicks?: number;
 }
