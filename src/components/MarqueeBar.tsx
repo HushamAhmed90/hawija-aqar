@@ -11,7 +11,7 @@ const messages = [
 ];
 
 export default function MarqueeBar() {
-  const repeated = [...messages, ...messages];
+  const repeated = [...messages, ...messages, ...messages, ...messages];
 
   return (
     <div className="bg-[#e8b86d] text-[#16213e] py-2 overflow-hidden whitespace-nowrap">
