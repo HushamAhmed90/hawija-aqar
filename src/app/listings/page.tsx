@@ -1,8 +1,6 @@
 "use client";
 export const dynamic = "force-dynamic";
 import { useEffect, useState, Suspense } from "react";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { Listing, PropertyType, ListingType } from "@/types/listing";
 import Navbar from "@/components/Navbar";
 import ListingCard from "@/components/ListingCard";
@@ -24,13 +22,8 @@ function ListingsContent() {
     const fetchListings = async () => {
       setLoading(true);
       try {
-        const q = query(collection(db, "listings"), orderBy("createdAt", "desc"));
-        const snapshot = await getDocs(q);
-        const data = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt?.toDate(),
-        })) as Listing[];
+        const res = await fetch("/api/listings");
+        const data = await res.json();
         setListings(data);
       } catch (e) {
         console.error(e);
