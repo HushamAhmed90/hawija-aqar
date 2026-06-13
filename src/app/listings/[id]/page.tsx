@@ -3,6 +3,8 @@ import { Listing } from "@/types/listing";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
 import ImageGallery from "@/components/ImageGallery";
+import DeleteListing from "@/components/DeleteListing";
+import ShareListing from "@/components/ShareListing";
 
 export const dynamic = "force-dynamic";
 
@@ -11,11 +13,7 @@ async function getListing(id: string): Promise<Listing | null> {
     const db = getAdminDb();
     const snap = await db.collection("listings").doc(id).get();
     if (!snap.exists) return null;
-    return {
-      id: snap.id,
-      ...snap.data(),
-      createdAt: snap.data()?.createdAt?.toDate() ?? null,
-    } as Listing;
+    return { id: snap.id, ...snap.data(), createdAt: snap.data()?.createdAt?.toDate() ?? null } as Listing;
   } catch {
     return null;
   }
@@ -36,9 +34,12 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
     <>
       <Navbar />
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <Link href="/listings" className="text-sm text-gray-500 hover:text-[#16213e] mb-4 block">
-          ← العودة للإعلانات
-        </Link>
+        <div className="flex items-center justify-between mb-4">
+          <Link href="/listings" className="text-sm text-gray-500 hover:text-[#16213e]">
+            ← العودة للإعلانات
+          </Link>
+          <DeleteListing id={listing.id} />
+        </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           {listing.images?.length > 0 ? (
@@ -83,6 +84,8 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
                 واتساب
               </a>
             </div>
+
+            <ShareListing title={listing.title} id={listing.id} />
           </div>
         </div>
       </div>

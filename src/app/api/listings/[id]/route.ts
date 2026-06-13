@@ -16,3 +16,20 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
     return NextResponse.json({ error: String(e) }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    const { phone } = await req.json();
+    const db = getAdminDb();
+    const snap = await db.collection("listings").doc(id).get();
+    if (!snap.exists) return NextResponse.json({ error: "not found" }, { status: 404 });
+    if (snap.data()?.phone !== phone) {
+      return NextResponse.json({ error: "رقم الهاتف غير صحيح" }, { status: 403 });
+    }
+    await db.collection("listings").doc(id).delete();
+    return NextResponse.json({ success: true });
+  } catch (e) {
+    return NextResponse.json({ error: String(e) }, { status: 500 });
+  }
+}
