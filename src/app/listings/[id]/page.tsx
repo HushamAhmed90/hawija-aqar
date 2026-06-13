@@ -1,36 +1,29 @@
-"use client";
-export const dynamic = "force-dynamic";
-import { useEffect, useState } from "react";
+import { getAdminDb } from "@/lib/firestore-admin";
 import { Listing } from "@/types/listing";
 import Navbar from "@/components/Navbar";
-import { useParams } from "next/navigation";
 import Link from "next/link";
+import ImageGallery from "@/components/ImageGallery";
 
-export default function ListingDetailPage() {
-  const { id } = useParams();
-  const [listing, setListing] = useState<Listing | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [currentImage, setCurrentImage] = useState(0);
+export const dynamic = "force-dynamic";
 
-  useEffect(() => {
-    const fetchListing = async () => {
-      try {
-        const res = await fetch(`/api/listings/${id}`);
-        if (res.ok) setListing(await res.json());
-      } catch (e) {
-        console.error(e);
-      }
-      setLoading(false);
-    };
-    fetchListing();
-  }, [id]);
+async function getListing(id: string): Promise<Listing | null> {
+  try {
+    const db = getAdminDb();
+    const snap = await db.collection("listings").doc(id).get();
+    if (!snap.exists) return null;
+    return {
+      id: snap.id,
+      ...snap.data(),
+      createdAt: snap.data()?.createdAt?.toDate() ?? null,
+    } as Listing;
+  } catch {
+    return null;
+  }
+}
 
-  if (loading) return (
-    <>
-      <Navbar />
-      <div className="text-center py-20 text-gray-400">جاري التحميل...</div>
-    </>
-  );
+export default async function ListingDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const listing = await getListing(id);
 
   if (!listing) return (
     <>
@@ -48,33 +41,13 @@ export default function ListingDetailPage() {
         </Link>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          {/* Images */}
           {listing.images?.length > 0 ? (
-            <div>
-              <img
-                src={listing.images[currentImage]}
-                alt={listing.title}
-                className="w-full h-72 md:h-96 object-cover"
-              />
-              {listing.images.length > 1 && (
-                <div className="flex gap-2 p-3 overflow-x-auto">
-                  {listing.images.map((img, i) => (
-                    <img
-                      key={i}
-                      src={img}
-                      onClick={() => setCurrentImage(i)}
-                      className={`h-16 w-20 object-cover rounded cursor-pointer border-2 ${i === currentImage ? "border-[#e8b86d]" : "border-transparent"}`}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
+            <ImageGallery images={listing.images} title={listing.title} />
           ) : (
             <div className="h-60 bg-gray-100 flex items-center justify-center text-6xl">🏠</div>
           )}
 
           <div className="p-6">
-            {/* Badges */}
             <div className="flex gap-2 mb-3">
               <span className={`text-sm font-bold px-3 py-1 rounded-full ${listing.listingType === "بيع" ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"}`}>
                 {listing.listingType}
@@ -98,21 +71,15 @@ export default function ListingDetailPage() {
               </div>
             )}
 
-            {/* Contact */}
             <div className="bg-[#f8f9fa] rounded-xl p-4 border border-gray-100">
               <h2 className="font-bold text-gray-700 mb-3">التواصل مع المالك</h2>
-              <a
-                href={`tel:${listing.phone}`}
-                className="flex items-center justify-center gap-2 bg-green-500 text-white py-3 rounded-xl font-bold text-lg hover:bg-green-600 transition-colors"
-              >
+              <a href={`tel:${listing.phone}`}
+                className="flex items-center justify-center gap-2 bg-green-500 text-white py-3 rounded-xl font-bold text-lg hover:bg-green-600 transition-colors">
                 📞 {listing.phone}
               </a>
-              <a
-                href={`https://wa.me/964${listing.phone.replace(/^0/, "")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 bg-[#25D366] text-white py-3 rounded-xl font-bold text-lg hover:opacity-90 transition-opacity mt-2"
-              >
+              <a href={`https://wa.me/964${listing.phone.replace(/^0/, "")}`}
+                target="_blank" rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 bg-[#25D366] text-white py-3 rounded-xl font-bold text-lg hover:opacity-90 transition-opacity mt-2">
                 واتساب
               </a>
             </div>
