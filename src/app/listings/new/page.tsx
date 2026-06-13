@@ -1,8 +1,6 @@
 "use client";
 export const dynamic = "force-dynamic";
 import { useState } from "react";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { PropertyType, ListingType } from "@/types/listing";
 import Navbar from "@/components/Navbar";
 import { useRouter } from "next/navigation";
@@ -72,8 +70,6 @@ export default function NewListingPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      if (!db) throw new Error("Firebase غير متصل — أعد تحميل الصفحة");
-
       let imageUrls: string[] = [];
       if (images.length > 0) {
         setUploadProgress("جاري رفع الصور...");
@@ -81,20 +77,13 @@ export default function NewListingPage() {
         setUploadProgress("");
       }
 
-      const timeout = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("انتهت مهلة الاتصال — تحقق من الإنترنت")), 15000)
-      );
+      const res = await fetch("/api/listings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, price: Number(form.price), images: imageUrls }),
+      });
 
-      await Promise.race([
-        addDoc(collection(db, "listings"), {
-          ...form,
-          price: Number(form.price),
-          images: imageUrls,
-          createdAt: serverTimestamp(),
-        }),
-        timeout,
-      ]);
-
+      if (!res.ok) throw new Error("فشل النشر");
       router.push("/listings");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "حدث خطأ";
