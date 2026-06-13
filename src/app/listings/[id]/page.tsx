@@ -1,8 +1,6 @@
 "use client";
 export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { Listing } from "@/types/listing";
 import Navbar from "@/components/Navbar";
 import { useParams } from "next/navigation";
@@ -15,15 +13,16 @@ export default function ListingDetailPage() {
   const [currentImage, setCurrentImage] = useState(0);
 
   useEffect(() => {
-    const fetch = async () => {
-      const docRef = doc(db, "listings", id as string);
-      const snap = await getDoc(docRef);
-      if (snap.exists()) {
-        setListing({ id: snap.id, ...snap.data(), createdAt: snap.data().createdAt?.toDate() } as Listing);
+    const fetchListing = async () => {
+      try {
+        const res = await fetch(`/api/listings/${id}`);
+        if (res.ok) setListing(await res.json());
+      } catch (e) {
+        console.error(e);
       }
       setLoading(false);
     };
-    fetch();
+    fetchListing();
   }, [id]);
 
   if (loading) return (
