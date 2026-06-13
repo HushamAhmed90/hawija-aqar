@@ -5,8 +5,20 @@ import HeroSearch from "@/components/HeroSearch";
 import StatsCounter from "@/components/StatsCounter";
 import WhyUs from "@/components/WhyUs";
 import Testimonials from "@/components/Testimonials";
+import { getAdminDb } from "@/lib/firestore-admin";
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+async function getListingCount() {
+  try {
+    const db = getAdminDb();
+    const snap = await db.collection("listings").count().get();
+    return snap.data().count;
+  } catch { return 0; }
+}
+
+export default async function HomePage() {
+  const listingCount = await getListingCount();
   return (
     <>
       <Navbar />
@@ -36,7 +48,7 @@ export default function HomePage() {
       </section>
 
       {/* Stats */}
-      <StatsCounter />
+      <StatsCounter listingCount={listingCount} />
 
       {/* Categories */}
       <section className="max-w-6xl mx-auto px-4 py-8">

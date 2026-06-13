@@ -17,6 +17,14 @@ export async function GET() {
   }
 }
 
+async function notifyAdmin(title: string, village: string, phone: string, price: number) {
+  const adminPhone = process.env.ADMIN_WHATSAPP;
+  if (!adminPhone) return;
+  const msg = `🏠 إعلان جديد على عقار الحويجة!\n\n📌 ${title}\n📍 ${village}\n💰 ${price.toLocaleString("ar-IQ")} دينار\n📞 ${phone}`;
+  await fetch(`https://api.callmebot.com/whatsapp.php?phone=${adminPhone}&text=${encodeURIComponent(msg)}&apikey=${process.env.CALLMEBOT_APIKEY}`)
+    .catch(() => {});
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -26,6 +34,7 @@ export async function POST(req: NextRequest) {
       price: Number(body.price),
       createdAt: FieldValue.serverTimestamp(),
     });
+    notifyAdmin(body.title, body.village, body.phone, Number(body.price));
     return NextResponse.json({ success: true });
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 });
