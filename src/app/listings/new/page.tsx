@@ -36,18 +36,10 @@ export default function NewListingPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const imageUrls: string[] = [];
-      for (const file of images) {
-        const storageRef = ref(storage, `listings/${Date.now()}_${file.name}`);
-        await uploadBytes(storageRef, file);
-        const url = await getDownloadURL(storageRef);
-        imageUrls.push(url);
-      }
-
       await addDoc(collection(db, "listings"), {
         ...form,
         price: Number(form.price),
-        images: imageUrls,
+        images: [],
         createdAt: serverTimestamp(),
       });
 
@@ -125,15 +117,9 @@ export default function NewListingPage() {
               className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#e8b86d] resize-none" />
           </label>
 
-          <label>
-            <span className="block text-sm font-medium text-gray-700 mb-1">صور العقار</span>
-            <input type="file" multiple accept="image/*"
-              onChange={(e) => setImages(Array.from(e.target.files || []))}
-              className="w-full text-sm text-gray-500 file:ml-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#16213e] file:text-white" />
-            {images.length > 0 && (
-              <p className="text-xs text-gray-400 mt-1">تم اختيار {images.length} صورة</p>
-            )}
-          </label>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3 text-sm text-yellow-700">
+            📸 إضافة الصور قادمة قريباً — يمكنك نشر الإعلان الآن بدون صور
+          </div>
 
           <button type="submit" disabled={loading}
             className="bg-[#16213e] text-white py-3 rounded-xl font-bold text-lg hover:bg-[#0f172a] transition-colors disabled:opacity-50">
