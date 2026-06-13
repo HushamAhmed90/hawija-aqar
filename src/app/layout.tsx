@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import WhatsAppFloat from "@/components/WhatsAppFloat";
 
 export const metadata: Metadata = {
   title: "عقار الحويجة | بيع وشراء وإيجار العقارات في الحويجة كركوك",
@@ -23,7 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="google" content="nositelinkssearchbox" />
         <link rel="canonical" href="https://hawija-aqar.vercel.app" />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">{children}<WhatsAppFloat /></body>
     </html>
   );
 }

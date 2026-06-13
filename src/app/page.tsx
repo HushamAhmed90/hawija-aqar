@@ -6,6 +6,7 @@ import StatsCounter from "@/components/StatsCounter";
 import WhyUs from "@/components/WhyUs";
 import Testimonials from "@/components/Testimonials";
 import DigitalClock from "@/components/DigitalClock";
+import PriceCalculator from "@/components/PriceCalculator";
 import { getAdminDb } from "@/lib/firestore-admin";
 
 export const dynamic = "force-dynamic";
@@ -93,6 +94,15 @@ export default async function HomePage() {
               <div className="font-medium text-gray-700 text-sm">{cat.label}</div>
             </Link>
           ))}
+        </div>
+      </section>
+
+      {/* Price Calculator */}
+      <section className="max-w-6xl mx-auto px-4 py-8">
+        <h2 className="text-2xl font-bold text-[#16213e] mb-1 text-center">🧮 حاسبة السعر</h2>
+        <p className="text-gray-400 text-center text-sm mb-6">احسب قسطك الشهري أو إيجارك التقديري</p>
+        <div className="max-w-xl mx-auto">
+          <PriceCalculator />
         </div>
       </section>
 

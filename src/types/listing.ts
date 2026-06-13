@@ -16,6 +16,8 @@ export interface Listing {
   userId?: string;
   featured?: boolean;
   sold?: boolean;
+  ratingTotal?: number;
+  ratingCount?: number;
   views?: number;
   whatsappClicks?: number;
 }

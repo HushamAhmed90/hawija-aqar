@@ -20,6 +20,7 @@ export default function Navbar() {
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-6 text-sm">
           <Link href="/listings" className="hover:text-[#e8b86d] transition-colors">الإعلانات</Link>
+          <Link href="/areas" className="hover:text-[#e8b86d] transition-colors">المناطق</Link>
           <Link href="/about" className="hover:text-[#e8b86d] transition-colors">عن الموقع</Link>
           <Link href="/contact" className="hover:text-[#e8b86d] transition-colors">تواصل معنا</Link>
           <Link href="/listings/new"
@@ -40,6 +41,7 @@ export default function Navbar() {
       {menuOpen && (
         <div className="md:hidden bg-[#0f172a] px-4 pb-4 flex flex-col gap-3 text-sm">
           <Link href="/listings" onClick={() => setMenuOpen(false)} className="hover:text-[#e8b86d] py-2 border-b border-white/10">الإعلانات</Link>
+          <Link href="/areas" onClick={() => setMenuOpen(false)} className="hover:text-[#e8b86d] py-2 border-b border-white/10">المناطق</Link>
           <Link href="/about" onClick={() => setMenuOpen(false)} className="hover:text-[#e8b86d] py-2 border-b border-white/10">عن الموقع</Link>
           <Link href="/contact" onClick={() => setMenuOpen(false)} className="hover:text-[#e8b86d] py-2 border-b border-white/10">تواصل معنا</Link>
           <Link href="/listings/new" onClick={() => setMenuOpen(false)}
