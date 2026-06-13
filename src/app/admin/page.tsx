@@ -131,7 +131,7 @@ export default function AdminPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-2 items-center">
-                        <a href={`/listings/${l.id}`} target="_blank" rel="noopener noreferrer"
+                        <a href={`/listings/${l.id}`}
                           className="text-blue-500 hover:text-blue-700 text-xs px-2 py-1 border border-blue-200 rounded-lg hover:bg-blue-50">
                           عرض
                         </a>
