@@ -1,10 +1,12 @@
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import MarqueeBar from "@/components/MarqueeBar";
 
 export default function HomePage() {
   return (
     <>
       <Navbar />
+      <MarqueeBar />
 
       {/* Hero */}
       <section className="bg-[#16213e] text-white py-16 px-4 text-center">
