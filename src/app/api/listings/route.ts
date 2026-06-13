@@ -6,11 +6,10 @@ function getDb() {
   if (!getApps().length) {
     const sa = JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT!, "base64").toString("utf8"));
     initializeApp({ credential: cert(sa) });
-    const db = getFirestore();
-    db.settings({ preferRest: true });
-    return db;
   }
-  return getFirestore();
+  const db = getFirestore();
+  try { db.settings({ preferRest: true }); } catch {}
+  return db;
 }
 
 export async function GET() {
