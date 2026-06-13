@@ -72,22 +72,34 @@ export default function NewListingPage() {
     e.preventDefault();
     setLoading(true);
     try {
+      if (!db) throw new Error("Firebase غير متصل — أعد تحميل الصفحة");
+
       let imageUrls: string[] = [];
       if (images.length > 0) {
         setUploadProgress("جاري رفع الصور...");
         imageUrls = await Promise.all(images.map(uploadToCloudinary));
         setUploadProgress("");
       }
-      await addDoc(collection(db, "listings"), {
-        ...form,
-        price: Number(form.price),
-        images: imageUrls,
-        createdAt: serverTimestamp(),
-      });
+
+      const timeout = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("انتهت مهلة الاتصال — تحقق من الإنترنت")), 15000)
+      );
+
+      await Promise.race([
+        addDoc(collection(db, "listings"), {
+          ...form,
+          price: Number(form.price),
+          images: imageUrls,
+          createdAt: serverTimestamp(),
+        }),
+        timeout,
+      ]);
+
       router.push("/listings");
-    } catch (err) {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "حدث خطأ";
       console.error(err);
-      alert("حدث خطأ، حاول مرة أخرى");
+      alert("خطأ: " + msg);
     }
     setLoading(false);
   };
