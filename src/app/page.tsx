@@ -9,26 +9,33 @@ export default function HomePage() {
       <MarqueeBar />
 
       {/* Hero */}
-      <section className="bg-[#16213e] text-white py-16 px-4 text-center">
-        <h1 className="text-3xl md:text-5xl font-bold mb-4">
-          عقار <span className="text-[#e8b86d]">الحويجة</span>
-        </h1>
-        <p className="text-gray-300 text-lg mb-8">
-          منصتك الأولى لبيع وشراء وإيجار العقارات في قضاء الحويجة وقراها
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link
-            href="/listings"
-            className="bg-[#e8b86d] text-[#16213e] px-8 py-3 rounded-xl font-bold text-lg hover:bg-yellow-400 transition-colors"
-          >
-            تصفح الإعلانات
-          </Link>
-          <Link
-            href="/listings/new"
-            className="border-2 border-white text-white px-8 py-3 rounded-xl font-bold text-lg hover:bg-white hover:text-[#16213e] transition-colors"
-          >
-            أضف إعلانك مجاناً
-          </Link>
+      <section className="relative text-white py-24 px-4 text-center overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: "url('/hero.jpg')" }}
+        />
+        <div className="absolute inset-0 bg-[#16213e] opacity-70" />
+        <div className="relative z-10">
+          <h1 className="text-3xl md:text-5xl font-bold mb-4 drop-shadow-lg">
+            عقار <span className="text-[#e8b86d]">الحويجة</span>
+          </h1>
+          <p className="text-gray-200 text-lg mb-8 drop-shadow">
+            منصتك الأولى لبيع وشراء وإيجار العقارات في قضاء الحويجة وقراها
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/listings"
+              className="bg-[#e8b86d] text-[#16213e] px-8 py-3 rounded-xl font-bold text-lg hover:bg-yellow-400 transition-colors"
+            >
+              تصفح الإعلانات
+            </Link>
+            <Link
+              href="/listings/new"
+              className="border-2 border-white text-white px-8 py-3 rounded-xl font-bold text-lg hover:bg-white hover:text-[#16213e] transition-colors"
+            >
+              أضف إعلانك مجاناً
+            </Link>
+          </div>
         </div>
       </section>
 
