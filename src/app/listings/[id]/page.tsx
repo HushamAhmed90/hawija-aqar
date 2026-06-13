@@ -56,7 +56,7 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
           <Link href="/listings" className="text-sm text-gray-500 hover:text-[#16213e]">
             ← العودة للإعلانات
           </Link>
-          <DeleteListing id={listing.id} />
+          <DeleteListing id={listing.id!} />
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
