@@ -4,7 +4,7 @@ import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 function getDb() {
   if (!getApps().length) {
-    const sa = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT!);
+    const sa = JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT!, "base64").toString("utf8"));
     initializeApp({ credential: cert(sa) });
   }
   return getFirestore();
