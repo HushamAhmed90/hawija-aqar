@@ -83,7 +83,10 @@ export default function NewListingPage() {
         body: JSON.stringify({ ...form, price: Number(form.price), images: imageUrls }),
       });
 
-      if (!res.ok) throw new Error("فشل النشر");
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(JSON.stringify(errData));
+      }
       router.push("/listings");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "حدث خطأ";
