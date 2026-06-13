@@ -53,21 +53,23 @@ export default async function HomePage() {
 
       {/* Clock + Tip */}
       <section className="max-w-6xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
           {/* Digital Clock */}
-          <div className="flex flex-col items-center justify-center">
+          <div className="flex flex-col">
             <h2 className="text-lg font-bold text-[#16213e] mb-3 text-center">🕐 الوقت الحالي</h2>
-            <DigitalClock />
+            <div className="flex-1">
+              <DigitalClock />
+            </div>
           </div>
           {/* Daily Tip */}
-          <div className="bg-gradient-to-br from-[#16213e] to-[#1a2a4a] rounded-2xl p-6 text-white shadow-lg flex flex-col justify-center">
-            <div className="text-[#e8b86d] text-2xl mb-2">💡</div>
-            <h2 className="text-lg font-bold mb-3 text-[#e8b86d]">نصيحة عقارية</h2>
-            <p className="text-gray-200 leading-relaxed text-sm">
+          <div className="bg-gradient-to-br from-[#16213e] to-[#1a2a4a] rounded-2xl p-5 text-white shadow-lg flex flex-col justify-center mt-9">
+            <div className="text-[#e8b86d] text-xl mb-1">💡</div>
+            <h2 className="text-base font-bold mb-2 text-[#e8b86d]">نصيحة عقارية</h2>
+            <p className="text-gray-200 leading-relaxed text-xs">
               قبل شراء أي عقار، تحقق دائماً من وثيقة الملكية الرسمية وتأكد أنها مسجلة في دائرة التسجيل العقاري.
               لا تدفع أي مبلغ قبل رؤية العقار على الطبيعة والتأكد من خلوه من الديون والحجوزات.
             </p>
-            <p className="text-xs text-gray-400 mt-3">نصيحة من فريق عقار الحويجة</p>
+            <p className="text-xs text-gray-400 mt-2">نصيحة من فريق عقار الحويجة</p>
           </div>
         </div>
       </section>
