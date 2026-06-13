@@ -1,20 +1,37 @@
 "use client";
 export const dynamic = "force-dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Listing } from "@/types/listing";
 import Navbar from "@/components/Navbar";
 
-const ADMIN_PASS = "hawija2025";
+const PASS_KEY = "hawija_admin_pass";
+const DEFAULT_PASS = "hawija2025";
 
 export default function AdminPage() {
   const [auth, setAuth] = useState(false);
   const [pass, setPass] = useState("");
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
+  const [filterType, setFilterType] = useState("الكل");
+  const [showChangePass, setShowChangePass] = useState(false);
+  const [newPass, setNewPass] = useState("");
+  const [newPass2, setNewPass2] = useState("");
+
+  const savedPass = () => (typeof window !== "undefined" ? localStorage.getItem(PASS_KEY) || DEFAULT_PASS : DEFAULT_PASS);
 
   const login = () => {
-    if (pass === ADMIN_PASS) setAuth(true);
+    if (pass === savedPass()) setAuth(true);
     else alert("كلمة المرور غلط");
+  };
+
+  const changePassword = () => {
+    if (newPass.length < 6) return alert("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+    if (newPass !== newPass2) return alert("كلمتا المرور غير متطابقتين");
+    localStorage.setItem(PASS_KEY, newPass);
+    setShowChangePass(false);
+    setNewPass(""); setNewPass2("");
+    alert("تم تغيير كلمة المرور بنجاح ✓");
   };
 
   useEffect(() => {
@@ -40,6 +57,29 @@ export default function AdminPage() {
     });
     setListings(prev => prev.map(l => l.id === id ? { ...l, featured: !current } : l));
   };
+
+  const exportExcel = () => {
+    const rows = [
+      ["العنوان", "النوع", "نوع العقار", "المنطقة", "الهاتف", "السعر", "المشاهدات", "واتساب", "التاريخ"],
+      ...filtered.map(l => [
+        l.title, l.listingType, l.propertyType, l.village, l.phone,
+        l.price, l.views || 0, l.whatsappClicks || 0,
+        l.createdAt ? new Date(l.createdAt).toLocaleDateString("ar-IQ") : "",
+      ]),
+    ];
+    const csv = "﻿" + rows.map(r => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "hawija-aqar.csv"; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const filtered = useMemo(() => listings.filter(l => {
+    const matchSearch = l.title.includes(search) || l.village.includes(search) || l.phone.includes(search);
+    const matchType = filterType === "الكل" || l.listingType === filterType;
+    return matchSearch && matchType;
+  }), [listings, search, filterType]);
 
   if (!auth) return (
     <>
@@ -70,25 +110,70 @@ export default function AdminPage() {
     <>
       <Navbar />
       <div className="max-w-6xl mx-auto px-4 py-8">
+        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-[#16213e]">لوحة الإدارة</h1>
-          <span className="text-gray-500 text-sm">{total} إعلان</span>
+          <div className="flex gap-2">
+            <button onClick={() => setShowChangePass(true)}
+              className="text-xs px-3 py-2 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50">
+              🔑 تغيير كلمة المرور
+            </button>
+            <button onClick={exportExcel}
+              className="text-xs px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+              📥 تصدير Excel
+            </button>
+          </div>
         </div>
 
-        {/* Stats cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        {/* Change Password Modal */}
+        {showChangePass && (
+          <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+            <div className="bg-white rounded-2xl p-6 w-80 shadow-xl">
+              <h2 className="font-bold text-[#16213e] mb-4">تغيير كلمة المرور</h2>
+              <input type="password" value={newPass} onChange={e => setNewPass(e.target.value)}
+                placeholder="كلمة المرور الجديدة"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 mb-3 focus:outline-none focus:border-[#e8b86d]" />
+              <input type="password" value={newPass2} onChange={e => setNewPass2(e.target.value)}
+                placeholder="تأكيد كلمة المرور"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 mb-4 focus:outline-none focus:border-[#e8b86d]" />
+              <div className="flex gap-2">
+                <button onClick={changePassword}
+                  className="flex-1 bg-[#16213e] text-white py-2 rounded-lg font-bold text-sm">حفظ</button>
+                <button onClick={() => setShowChangePass(false)}
+                  className="flex-1 border border-gray-200 py-2 rounded-lg text-sm text-gray-600">إلغاء</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           {[
             { label: "إجمالي الإعلانات", value: total, icon: "📋", color: "bg-blue-50 text-blue-700" },
             { label: "للبيع", value: forSale, icon: "🏷️", color: "bg-green-50 text-green-700" },
             { label: "للإيجار", value: forRent, icon: "🔑", color: "bg-yellow-50 text-yellow-700" },
             { label: "إجمالي المشاهدات", value: totalViews, icon: "👁️", color: "bg-purple-50 text-purple-700" },
           ].map(s => (
-            <div key={s.label} className={`rounded-xl p-4 ${s.color} border border-opacity-20`}>
+            <div key={s.label} className={`rounded-xl p-4 ${s.color}`}>
               <div className="text-2xl mb-1">{s.icon}</div>
               <div className="text-2xl font-bold">{s.value}</div>
               <div className="text-xs mt-1 opacity-75">{s.label}</div>
             </div>
           ))}
+        </div>
+
+        {/* Search & Filter */}
+        <div className="flex gap-3 mb-4">
+          <input value={search} onChange={e => setSearch(e.target.value)}
+            placeholder="🔍 بحث بالعنوان أو المنطقة أو الهاتف..."
+            className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#e8b86d]" />
+          <select value={filterType} onChange={e => setFilterType(e.target.value)}
+            className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#e8b86d]">
+            <option>الكل</option>
+            <option>بيع</option>
+            <option>إيجار</option>
+          </select>
+          <span className="text-xs text-gray-400 self-center">{filtered.length} نتيجة</span>
         </div>
 
         {loading ? (
@@ -103,14 +188,14 @@ export default function AdminPage() {
                   <th className="text-right px-4 py-3 font-medium text-gray-600">المنطقة</th>
                   <th className="text-right px-4 py-3 font-medium text-gray-600">الهاتف</th>
                   <th className="text-right px-4 py-3 font-medium text-gray-600">السعر</th>
-                  <th className="text-right px-4 py-3 font-medium text-gray-600">👁️ مشاهدات</th>
-                  <th className="text-right px-4 py-3 font-medium text-gray-600">📲 واتساب</th>
+                  <th className="text-right px-4 py-3 font-medium text-gray-600">👁️</th>
+                  <th className="text-right px-4 py-3 font-medium text-gray-600">📲</th>
                   <th className="text-right px-4 py-3 font-medium text-gray-600">التاريخ</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
               <tbody>
-                {listings.map(l => (
+                {filtered.map(l => (
                   <tr key={l.id} className="border-b border-gray-50 hover:bg-gray-50">
                     <td className="px-4 py-3 font-medium text-[#16213e] max-w-[160px] truncate">
                       {l.featured && <span className="text-yellow-500 ml-1">⭐</span>}
@@ -130,14 +215,14 @@ export default function AdminPage() {
                       {l.createdAt ? new Date(l.createdAt).toLocaleDateString("ar-IQ") : "—"}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex gap-2 items-center">
+                      <div className="flex gap-1 items-center">
                         <a href={`/listings/${l.id}`}
                           className="text-blue-500 hover:text-blue-700 text-xs px-2 py-1 border border-blue-200 rounded-lg hover:bg-blue-50">
                           عرض
                         </a>
                         <button onClick={() => toggleFeatured(l.id, !!l.featured)}
                           className={`text-xs px-2 py-1 border rounded-lg transition-colors ${l.featured ? "bg-yellow-100 text-yellow-700 border-yellow-200" : "text-gray-400 border-gray-200 hover:bg-yellow-50"}`}>
-                          {l.featured ? "⭐ مميز" : "تمييز"}
+                          {l.featured ? "⭐" : "تمييز"}
                         </button>
                         <button onClick={() => deleteListing(l.id)}
                           className="text-red-500 hover:text-red-700 text-xs px-2 py-1 border border-red-200 rounded-lg hover:bg-red-50">
