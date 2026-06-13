@@ -34,7 +34,7 @@ function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
 
 export default function StatsCounter() {
   return (
-    <section className="bg-white py-12 border-b">
+    <section className="bg-white py-6 border-b">
       <div className="max-w-5xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
         {[
           { icon: "📋", label: "إعلان منشور", target: 1, suffix: "+" },

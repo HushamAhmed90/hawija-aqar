@@ -39,9 +39,9 @@ export default function HomePage() {
       <StatsCounter />
 
       {/* Categories */}
-      <section className="max-w-6xl mx-auto px-4 py-12">
-        <h2 className="text-2xl font-bold text-[#16213e] mb-2 text-center">تصفح حسب النوع</h2>
-        <p className="text-gray-400 text-center mb-6 text-sm">اختر نوع العقار الذي تبحث عنه</p>
+      <section className="max-w-6xl mx-auto px-4 py-8">
+        <h2 className="text-2xl font-bold text-[#16213e] mb-1 text-center">تصفح حسب النوع</h2>
+        <p className="text-gray-400 text-center mb-4 text-sm">اختر نوع العقار الذي تبحث عنه</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
           {[
             { label: "أراضي", icon: "🌿", type: "أرض" },
@@ -67,7 +67,7 @@ export default function HomePage() {
       <Testimonials />
 
       {/* CTA */}
-      <section className="bg-[#16213e] py-16 px-4 text-center">
+      <section className="bg-[#16213e] py-10 px-4 text-center">
         <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">هل لديك عقار للبيع أو الإيجار؟</h2>
         <p className="text-gray-300 mb-8">أضف إعلانك مجاناً وتواصل مع آلاف المهتمين في الحويجة</p>
         <Link href="/listings/new"

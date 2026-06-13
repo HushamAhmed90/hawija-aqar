@@ -9,10 +9,10 @@ const reviews = [
 
 export default function Testimonials() {
   return (
-    <section className="bg-gray-50 py-14 px-4">
+    <section className="bg-gray-50 py-8 px-4">
       <div className="max-w-5xl mx-auto">
-        <h2 className="text-2xl font-bold text-[#16213e] mb-2 text-center">آراء المستخدمين</h2>
-        <p className="text-gray-400 text-center mb-8 text-sm">تجارب حقيقية من أهل الحويجة</p>
+        <h2 className="text-2xl font-bold text-[#16213e] mb-1 text-center">آراء المستخدمين</h2>
+        <p className="text-gray-400 text-center mb-4 text-sm">تجارب حقيقية من أهل الحويجة</p>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {reviews.map((r) => (
             <div key={r.name} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
