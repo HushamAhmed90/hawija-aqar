@@ -1,19 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { initializeApp, getApps } from "firebase/app";
-import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
-
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-};
+import { initializeApp, getApps, cert } from "firebase-admin/app";
+import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 function getDb() {
-  const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-  return getFirestore(app);
+  if (!getApps().length) {
+    initializeApp({
+      credential: cert({
+        projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+        privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+      }),
+    });
+  }
+  return getFirestore();
 }
 
 export async function POST(req: NextRequest) {
@@ -21,10 +20,10 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const db = getDb();
 
-    await addDoc(collection(db, "listings"), {
+    await db.collection("listings").add({
       ...body,
       price: Number(body.price),
-      createdAt: serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp(),
     });
 
     return NextResponse.json({ success: true });
