@@ -1,37 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
+import { initializeApp, getApps } from "firebase/app";
+import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
+
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+};
+
+function getDb() {
+  const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+  return getFirestore(app);
+}
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-    const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+    const db = getDb();
 
-    const toValue = (v: unknown): unknown => {
-      if (typeof v === "string") return { stringValue: v };
-      if (typeof v === "number") return { integerValue: String(v) };
-      if (Array.isArray(v)) return { arrayValue: { values: v.map((s) => ({ stringValue: s })) } };
-      return { stringValue: String(v) };
-    };
-
-    const fields: Record<string, unknown> = {};
-    for (const [key, val] of Object.entries(body)) {
-      fields[key] = toValue(val);
-    }
-    fields.createdAt = { timestampValue: new Date().toISOString() };
-
-    const res = await fetch(
-      `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/listings?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fields }),
-      }
-    );
-
-    if (!res.ok) {
-      const err = await res.json();
-      return NextResponse.json({ error: err }, { status: 500 });
-    }
+    await addDoc(collection(db, "listings"), {
+      ...body,
+      price: Number(body.price),
+      createdAt: serverTimestamp(),
+    });
 
     return NextResponse.json({ success: true });
   } catch (e) {
