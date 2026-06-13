@@ -3,7 +3,6 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import { Listing } from "@/types/listing";
 import Navbar from "@/components/Navbar";
-import Link from "next/link";
 
 const ADMIN_PASS = "hawija2025";
 
@@ -132,10 +131,10 @@ export default function AdminPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-2 items-center">
-                        <Link href={`/listings/${l.id}`} target="_blank"
+                        <a href={`/listings/${l.id}`} target="_blank" rel="noopener noreferrer"
                           className="text-blue-500 hover:text-blue-700 text-xs px-2 py-1 border border-blue-200 rounded-lg hover:bg-blue-50">
                           عرض
-                        </Link>
+                        </a>
                         <button onClick={() => toggleFeatured(l.id, !!l.featured)}
                           className={`text-xs px-2 py-1 border rounded-lg transition-colors ${l.featured ? "bg-yellow-100 text-yellow-700 border-yellow-200" : "text-gray-400 border-gray-200 hover:bg-yellow-50"}`}>
                           {l.featured ? "⭐ مميز" : "تمييز"}
