@@ -1,20 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { initializeApp, getApps, cert } from "firebase-admin/app";
-import { getFirestore, FieldValue } from "firebase-admin/firestore";
-
-function getDb() {
-  if (!getApps().length) {
-    const sa = JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT!, "base64").toString("utf8"));
-    initializeApp({ credential: cert(sa) });
-  }
-  const db = getFirestore();
-  try { db.settings({ preferRest: true }); } catch {}
-  return db;
-}
+import { getAdminDb } from "@/lib/firestore-admin";
+import { FieldValue } from "@google-cloud/firestore";
 
 export async function GET() {
   try {
-    const db = getDb();
+    const db = getAdminDb();
     const snapshot = await db.collection("listings").orderBy("createdAt", "desc").get();
     const listings = snapshot.docs.map((doc) => ({
       id: doc.id,
@@ -30,7 +20,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const db = getDb();
+    const db = getAdminDb();
     await db.collection("listings").add({
       ...body,
       price: Number(body.price),
