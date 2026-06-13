@@ -89,7 +89,7 @@ export default function AdminPage() {
                     <td className="px-4 py-3 text-gray-500">{l.phone}</td>
                     <td className="px-4 py-3 font-bold text-[#16213e]">{l.price.toLocaleString("ar-IQ")}</td>
                     <td className="px-4 py-3">
-                      <button onClick={() => deleteListing(l.id)}
+                      <button onClick={() => deleteListing(l.id!)}
                         className="text-red-500 hover:text-red-700 font-bold text-xs px-3 py-1 border border-red-200 rounded-lg hover:bg-red-50">
                         حذف
                       </button>
