@@ -5,6 +5,7 @@ import HeroSearch from "@/components/HeroSearch";
 import StatsCounter from "@/components/StatsCounter";
 import WhyUs from "@/components/WhyUs";
 import Testimonials from "@/components/Testimonials";
+import DigitalClock from "@/components/DigitalClock";
 import { getAdminDb } from "@/lib/firestore-admin";
 
 export const dynamic = "force-dynamic";
@@ -50,6 +51,27 @@ export default async function HomePage() {
       {/* Stats */}
       <StatsCounter listingCount={listingCount} />
 
+      {/* Clock + Tip */}
+      <section className="max-w-6xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Digital Clock */}
+          <div className="flex flex-col items-center justify-center">
+            <h2 className="text-lg font-bold text-[#16213e] mb-3 text-center">🕐 الوقت الحالي</h2>
+            <DigitalClock />
+          </div>
+          {/* Daily Tip */}
+          <div className="bg-gradient-to-br from-[#16213e] to-[#1a2a4a] rounded-2xl p-6 text-white shadow-lg flex flex-col justify-center">
+            <div className="text-[#e8b86d] text-2xl mb-2">💡</div>
+            <h2 className="text-lg font-bold mb-3 text-[#e8b86d]">نصيحة عقارية</h2>
+            <p className="text-gray-200 leading-relaxed text-sm">
+              قبل شراء أي عقار، تحقق دائماً من وثيقة الملكية الرسمية وتأكد أنها مسجلة في دائرة التسجيل العقاري.
+              لا تدفع أي مبلغ قبل رؤية العقار على الطبيعة والتأكد من خلوه من الديون والحجوزات.
+            </p>
+            <p className="text-xs text-gray-400 mt-3">نصيحة من فريق عقار الحويجة</p>
+          </div>
+        </div>
+      </section>
+
       {/* Categories */}
       <section className="max-w-6xl mx-auto px-4 py-8">
         <h2 className="text-2xl font-bold text-[#16213e] mb-1 text-center">تصفح حسب النوع</h2>
@@ -72,8 +94,64 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Iraqi Civilization */}
+      <section className="py-10 px-4 bg-[#fdf8f0]">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-2xl font-bold text-[#16213e] text-center mb-1">🏛️ حضارات العراق العريقة</h2>
+          <p className="text-gray-400 text-center text-sm mb-6">من بلاد الرافدين إلى اليوم — أرض الحضارة الأولى</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {[
+              {
+                name: "حضارة سومر",
+                emoji: "🏺",
+                desc: "أول حضارة كتابية في التاريخ، اخترعت الكتابة المسمارية والعجلة في جنوب العراق قبل 5000 عام.",
+                color: "bg-amber-50 border-amber-200",
+              },
+              {
+                name: "حضارة بابل",
+                emoji: "🦁",
+                desc: "مهد قانون حمورابي، أول قانون مكتوب في العالم، وموطن حدائق بابل المعلقة إحدى عجائب الدنيا.",
+                color: "bg-blue-50 border-blue-200",
+              },
+              {
+                name: "حضارة آشور",
+                emoji: "🦅",
+                desc: "إمبراطورية عظيمة أسست الجيوش المنظمة والمكتبات الملكية، وعاصمتها نينوى قرب الموصل.",
+                color: "bg-orange-50 border-orange-200",
+              },
+            ].map((civ) => (
+              <div key={civ.name} className={`rounded-2xl border p-5 shadow-sm ${civ.color}`}>
+                <div className="text-5xl mb-3 text-center">{civ.emoji}</div>
+                <h3 className="font-bold text-[#16213e] text-lg text-center mb-2">{civ.name}</h3>
+                <p className="text-gray-600 text-sm leading-relaxed text-center">{civ.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Why Us */}
       <WhyUs />
+
+      {/* Encouraging Phrases */}
+      <section className="py-10 px-4 bg-[#16213e]">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-2xl font-bold text-[#e8b86d] text-center mb-6">✨ عبارات تشجيعية</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {[
+              { text: "الأرض لا تكذب، استثمر فيها واطمئن على مستقبلك.", icon: "🌱" },
+              { text: "بيتك الذي بنيته بيدك هو أعظم إرث لأبنائك.", icon: "🏠" },
+              { text: "كل قطعة أرض في الحويجة تحمل قصة وتحمل مستقبلاً.", icon: "🌅" },
+              { text: "الاستثمار العقاري اليوم هو الأمان الذي تبحث عنه غداً.", icon: "💎" },
+            ].map((q, i) => (
+              <div key={i} className="bg-white/10 backdrop-blur rounded-xl p-5 border border-white/10">
+                <span className="text-3xl block mb-2">{q.icon}</span>
+                <p className="text-white leading-relaxed text-sm font-medium">{q.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Testimonials */}
       <Testimonials />
