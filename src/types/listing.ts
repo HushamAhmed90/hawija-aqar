@@ -2,7 +2,7 @@ export type ListingType = "بيع" | "إيجار";
 export type PropertyType = "أرض" | "بيت" | "شقة" | "محل" | "مزرعة" | "أخرى";
 
 export interface Listing {
-  id?: string;
+  id: string;
   title: string;
   description: string;
   price: number;
