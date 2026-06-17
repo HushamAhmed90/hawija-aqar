@@ -1,6 +1,7 @@
 "use client";
 export const dynamic = "force-dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { Car } from "@/types/car";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
@@ -36,11 +37,12 @@ function CarCard({ car }: { car: Car }) {
   );
 }
 
-export default function CarsPage() {
+function CarsContent() {
+  const searchParams = useSearchParams();
   const [cars, setCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [filterBrand, setFilterBrand] = useState("");
+  const [filterBrand, setFilterBrand] = useState(searchParams.get("brand") || "");
   const [filterListing, setFilterListing] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -122,5 +124,13 @@ export default function CarsPage() {
         )}
       </div>
     </>
+  );
+}
+
+export default function CarsPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-20 text-gray-400">جاري التحميل...</div>}>
+      <CarsContent />
+    </Suspense>
   );
 }

@@ -78,8 +78,10 @@ export default async function HomePage() {
       {/* Categories */}
       <section className="max-w-6xl mx-auto px-4 py-8">
         <h2 className="text-2xl font-bold text-[#16213e] mb-1 text-center">تصفح حسب النوع</h2>
-        <p className="text-gray-400 text-center mb-4 text-sm">اختر نوع العقار الذي تبحث عنه</p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+        <p className="text-gray-400 text-center mb-6 text-sm">اختر ما تبحث عنه</p>
+
+        <p className="text-sm font-bold text-gray-500 mb-3">🏠 العقارات</p>
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6">
           {[
             { label: "أراضي", icon: "🌿", type: "أرض" },
             { label: "بيوت", icon: "🏠", type: "بيت" },
@@ -89,9 +91,27 @@ export default async function HomePage() {
             { label: "أخرى", icon: "📦", type: "أخرى" },
           ].map((cat) => (
             <Link key={cat.type} href={`/listings?type=${encodeURIComponent(cat.type)}`}
-              className="bg-white border border-gray-100 rounded-2xl p-5 text-center shadow-sm hover:shadow-md hover:border-[#e8b86d] transition-all">
-              <div className="text-4xl mb-2">{cat.icon}</div>
-              <div className="font-medium text-gray-700 text-sm">{cat.label}</div>
+              className="bg-white border border-gray-100 rounded-2xl p-4 text-center shadow-sm hover:shadow-md hover:border-[#e8b86d] transition-all">
+              <div className="text-3xl mb-2">{cat.icon}</div>
+              <div className="font-medium text-gray-700 text-xs">{cat.label}</div>
+            </Link>
+          ))}
+        </div>
+
+        <p className="text-sm font-bold text-gray-500 mb-3">🚗 السيارات</p>
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+          {[
+            { label: "تويوتا", icon: "🚙", brand: "تويوتا" },
+            { label: "كيا", icon: "🚗", brand: "كيا" },
+            { label: "هيونداي", icon: "🚘", brand: "هيونداي" },
+            { label: "نيسان", icon: "🛻", brand: "نيسان" },
+            { label: "هوندا", icon: "🚕", brand: "هوندا" },
+            { label: "كل السيارات", icon: "🔍", brand: "" },
+          ].map((cat) => (
+            <Link key={cat.brand} href={cat.brand ? `/cars?brand=${encodeURIComponent(cat.brand)}` : "/cars"}
+              className="bg-white border border-gray-100 rounded-2xl p-4 text-center shadow-sm hover:shadow-md hover:border-[#e8b86d] transition-all">
+              <div className="text-3xl mb-2">{cat.icon}</div>
+              <div className="font-medium text-gray-700 text-xs">{cat.label}</div>
             </Link>
           ))}
         </div>
