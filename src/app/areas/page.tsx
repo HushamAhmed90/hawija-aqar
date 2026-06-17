@@ -10,19 +10,12 @@ export const metadata: Metadata = {
 const VILLAGES = [
   { name: "الحويجة", icon: "🏙️" },
   { name: "الرياض", icon: "🌿" },
-  { name: "العلم", icon: "🏘️" },
-  { name: "الزيدية", icon: "🌾" },
-  { name: "الكيلاني", icon: "🏡" },
-  { name: "أبو عوجة", icon: "🌳" },
-  { name: "السنية", icon: "🏠" },
-  { name: "الكسارة", icon: "🏚️" },
-  { name: "المحمودية", icon: "🏗️" },
-  { name: "الدبس", icon: "🌊" },
-  { name: "بركة", icon: "🌱" },
-  { name: "الملك", icon: "👑" },
-  { name: "أم الزيتون", icon: "🫒" },
-  { name: "الجنابيين", icon: "🌄" },
-  { name: "السبعاوي", icon: "🏞️" },
+  { name: "العزيري", icon: "🏘️" },
+  { name: "الخان", icon: "🏡" },
+  { name: "حياش", icon: "🌾" },
+  { name: "المنزلة", icon: "🏠" },
+  { name: "أم الدنيا", icon: "🌳" },
+  { name: "الحلاوة", icon: "🌄" },
 ];
 
 export default function AreasPage() {

@@ -9,9 +9,8 @@ const CLOUDINARY_CLOUD = "dstbkra00";
 const CLOUDINARY_PRESET = "hawija-aqar";
 
 const villages = [
-  "الحويجة", "الرياض", "العلم", "الزيدية", "الكيلاني", "أبو عوجة",
-  "السنية", "الكسارة", "المحمودية", "الدبس", "بركة", "الملك",
-  "أم الزيتون", "الجنابيين", "السبعاوي", "أخرى",
+  "الحويجة", "الرياض", "العزيري", "الخان", "حياش",
+  "المنزلة", "أم الدنيا", "الحلاوة", "أخرى",
 ];
 
 async function uploadToCloudinary(file: File): Promise<string> {

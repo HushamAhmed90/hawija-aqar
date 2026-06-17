@@ -6,9 +6,8 @@ import { useRouter } from "next/navigation";
 import { RequestCategory, RequestListingType } from "@/types/request";
 
 const villages = [
-  "الحويجة", "الرياض", "العلم", "الزيدية", "الكيلاني", "أبو عوجة",
-  "السنية", "الكسارة", "المحمودية", "الدبس", "بركة", "الملك",
-  "أم الزيتون", "الجنابيين", "السبعاوي", "أخرى",
+  "الحويجة", "الرياض", "العزيري", "الخان", "حياش",
+  "المنزلة", "أم الدنيا", "الحلاوة", "أخرى",
 ];
 
 export default function NewRequestPage() {
