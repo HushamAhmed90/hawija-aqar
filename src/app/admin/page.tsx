@@ -2,7 +2,20 @@
 export const dynamic = "force-dynamic";
 import { useEffect, useState, useMemo } from "react";
 import { Listing } from "@/types/listing";
+import { Office } from "@/types/office";
 import Navbar from "@/components/Navbar";
+
+const CLOUDINARY_CLOUD = "dstbkra00";
+const CLOUDINARY_PRESET = "hawija-aqar";
+
+async function uploadLogo(file: File): Promise<string> {
+  const fd = new FormData();
+  fd.append("file", file); fd.append("upload_preset", CLOUDINARY_PRESET);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, { method: "POST", body: fd });
+  const data = await res.json();
+  if (!data.secure_url) throw new Error("فشل رفع الشعار");
+  return data.secure_url;
+}
 
 const PASS_KEY = "hawija_admin_pass";
 const DEFAULT_PASS = "hawija2025";
@@ -10,7 +23,15 @@ const DEFAULT_PASS = "hawija2025";
 export default function AdminPage() {
   const [auth, setAuth] = useState(false);
   const [pass, setPass] = useState("");
+  const [activeTab, setActiveTab] = useState<"listings" | "offices" | "requests">("listings");
   const [listings, setListings] = useState<Listing[]>([]);
+  const [offices, setOffices] = useState<Office[]>([]);
+  const [requests, setRequests] = useState<any[]>([]);
+  const [showOfficeForm, setShowOfficeForm] = useState(false);
+  const [officeForm, setOfficeForm] = useState({ name: "", description: "", phone: "", whatsapp: "", address: "", logo: "" });
+  const [officeLogoFile, setOfficeLogoFile] = useState<File | null>(null);
+  const [officeLogoPreview, setOfficeLogoPreview] = useState("");
+  const [officeSaving, setOfficeSaving] = useState(false);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("الكل");
@@ -39,11 +60,49 @@ export default function AdminPage() {
   useEffect(() => {
     if (!auth) return;
     setLoading(true);
-    fetch("/api/listings").then(r => r.json()).then(data => {
-      setListings(data);
+    Promise.all([
+      fetch("/api/listings").then(r => r.json()),
+      fetch("/api/offices").then(r => r.json()),
+      fetch("/api/requests").then(r => r.json()),
+    ]).then(([listingsData, officesData, requestsData]) => {
+      setListings(listingsData);
+      setOffices(Array.isArray(officesData) ? officesData : []);
+      setRequests(Array.isArray(requestsData) ? requestsData : []);
       setLoading(false);
     });
   }, [auth]);
+
+  const saveOffice = async () => {
+    if (!officeForm.name || !officeForm.phone) return alert("الاسم والهاتف مطلوبان");
+    setOfficeSaving(true);
+    try {
+      let logo = officeForm.logo;
+      if (officeLogoFile) logo = await uploadLogo(officeLogoFile);
+      const res = await fetch("/api/offices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...officeForm, logo }),
+      });
+      const data = await res.json();
+      setOffices(prev => [{ id: data.id, ...officeForm, logo, createdAt: new Date() }, ...prev]);
+      setOfficeForm({ name: "", description: "", phone: "", whatsapp: "", address: "", logo: "" });
+      setOfficeLogoFile(null); setOfficeLogoPreview("");
+      setShowOfficeForm(false);
+    } catch (e) { alert("خطأ: " + String(e)); }
+    setOfficeSaving(false);
+  };
+
+  const deleteOffice = async (id: string) => {
+    if (!confirm("حذف المكتب؟")) return;
+    await fetch(`/api/offices/${id}`, { method: "DELETE" });
+    setOffices(prev => prev.filter(o => o.id !== id));
+  };
+
+  const deleteRequest = async (id: string) => {
+    if (!confirm("حذف الطلب؟")) return;
+    await fetch(`/api/requests/${id}`, { method: "DELETE" });
+    setRequests(prev => prev.filter(r => r.id !== id));
+  };
 
   const deleteListing = async (id: string) => {
     if (!confirm("تأكيد الحذف؟")) return;
@@ -176,6 +235,129 @@ export default function AdminPage() {
           ))}
         </div>
 
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6 border-b border-gray-100 pb-4">
+          {([["listings", "🏠 الإعلانات"], ["offices", "🏢 المكاتب"], ["requests", "📋 الطلبات"]] as const).map(([tab, label]) => (
+            <button key={tab} onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${activeTab === tab ? "bg-[#16213e] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Offices Tab */}
+        {activeTab === "offices" && (
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="font-bold text-[#16213e]">المكاتب العقارية ({offices.length})</h2>
+              <button onClick={() => setShowOfficeForm(!showOfficeForm)}
+                className="bg-[#e8b86d] text-[#16213e] px-4 py-2 rounded-lg font-bold text-sm hover:bg-yellow-400">
+                + إضافة مكتب
+              </button>
+            </div>
+
+            {showOfficeForm && (
+              <div className="bg-white rounded-xl border border-gray-100 p-5 mb-5 shadow-sm">
+                <h3 className="font-bold text-[#16213e] mb-4">مكتب جديد</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[["name","اسم المكتب *",""], ["phone","الهاتف *","07xxxxxxxxx"], ["whatsapp","واتساب","07xxxxxxxxx"], ["address","العنوان",""]].map(([k,l,p]) => (
+                    <label key={k}>
+                      <span className="block text-xs text-gray-500 mb-1">{l}</span>
+                      <input value={(officeForm as any)[k]} onChange={e => setOfficeForm(f => ({...f, [k]: e.target.value}))}
+                        placeholder={p} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#e8b86d]" />
+                    </label>
+                  ))}
+                  <label className="sm:col-span-2">
+                    <span className="block text-xs text-gray-500 mb-1">وصف المكتب</span>
+                    <textarea value={officeForm.description} onChange={e => setOfficeForm(f => ({...f, description: e.target.value}))}
+                      rows={2} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#e8b86d] resize-none" />
+                  </label>
+                  <label className="sm:col-span-2">
+                    <span className="block text-xs text-gray-500 mb-1">شعار المكتب (اختياري)</span>
+                    {officeLogoPreview && <img src={officeLogoPreview} alt="logo" className="w-16 h-16 rounded-xl object-cover mb-2 border" />}
+                    <input type="file" accept="image/*" onChange={e => {
+                      const f = e.target.files?.[0]; if (!f) return;
+                      setOfficeLogoFile(f);
+                      const r = new FileReader(); r.onload = ev => setOfficeLogoPreview(ev.target?.result as string); r.readAsDataURL(f);
+                    }} className="text-sm text-gray-500" />
+                  </label>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <button onClick={saveOffice} disabled={officeSaving}
+                    className="bg-[#16213e] text-white px-5 py-2 rounded-lg font-bold text-sm disabled:opacity-50">
+                    {officeSaving ? "جاري الحفظ..." : "حفظ المكتب"}
+                  </button>
+                  <button onClick={() => setShowOfficeForm(false)} className="border border-gray-200 px-4 py-2 rounded-lg text-sm text-gray-600">إلغاء</button>
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {offices.map(o => (
+                <div key={o.id} className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+                  <div className="flex items-center gap-3 mb-3">
+                    {o.logo ? <img src={o.logo} alt={o.name} className="w-12 h-12 rounded-xl object-cover" /> :
+                      <div className="w-12 h-12 rounded-xl bg-[#16213e] text-white flex items-center justify-center font-bold text-lg">{o.name[0]}</div>}
+                    <div>
+                      <p className="font-bold text-[#16213e] text-sm">{o.name}</p>
+                      <p className="text-xs text-gray-400">{o.address}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <a href={`/offices/${o.id}`} target="_blank"
+                      className="flex-1 text-center text-xs py-1.5 border border-blue-200 text-blue-600 rounded-lg hover:bg-blue-50">عرض</a>
+                    <button onClick={() => deleteOffice(o.id)}
+                      className="flex-1 text-center text-xs py-1.5 border border-red-200 text-red-500 rounded-lg hover:bg-red-50">حذف</button>
+                  </div>
+                </div>
+              ))}
+              {offices.length === 0 && <p className="text-gray-400 text-sm col-span-3">لا توجد مكاتب بعد</p>}
+            </div>
+          </div>
+        )}
+
+        {/* Requests Tab */}
+        {activeTab === "requests" && (
+          <div>
+            <h2 className="font-bold text-[#16213e] mb-4">الطلبات النشطة ({requests.length})</h2>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 border-b border-gray-100">
+                  <tr>
+                    <th className="text-right px-4 py-3 font-medium text-gray-600">الاسم</th>
+                    <th className="text-right px-4 py-3 font-medium text-gray-600">الفئة</th>
+                    <th className="text-right px-4 py-3 font-medium text-gray-600">الطلب</th>
+                    <th className="text-right px-4 py-3 font-medium text-gray-600">المنطقة</th>
+                    <th className="text-right px-4 py-3 font-medium text-gray-600">الهاتف</th>
+                    <th className="px-4 py-3"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {requests.map(r => (
+                    <tr key={r.id} className="border-b border-gray-50 hover:bg-gray-50">
+                      <td className="px-4 py-3 font-medium text-[#16213e]">{r.name}</td>
+                      <td className="px-4 py-3">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{r.category} · {r.listingType}</span>
+                      </td>
+                      <td className="px-4 py-3 text-gray-500 max-w-[200px] truncate">{r.description}</td>
+                      <td className="px-4 py-3 text-gray-500">{r.village}</td>
+                      <td className="px-4 py-3 font-mono text-xs text-gray-500">{r.phone}</td>
+                      <td className="px-4 py-3">
+                        <button onClick={() => deleteRequest(r.id)}
+                          className="text-red-500 text-xs px-2 py-1 border border-red-200 rounded-lg hover:bg-red-50">حذف</button>
+                      </td>
+                    </tr>
+                  ))}
+                  {requests.length === 0 && (
+                    <tr><td colSpan={6} className="text-center py-10 text-gray-400">لا توجد طلبات</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "listings" && <>
         {/* Search & Filter */}
         <div className="flex gap-3 mb-4">
           <input value={search} onChange={e => setSearch(e.target.value)}
@@ -256,6 +438,7 @@ export default function AdminPage() {
             </table>
           </div>
         )}
+        </>}
       </div>
     </>
   );

@@ -21,9 +21,10 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-6 text-sm">
           <Link href="/listings" className="hover:text-[#e8b86d] transition-colors">🏠 العقارات</Link>
           <Link href="/cars" className="hover:text-[#e8b86d] transition-colors">🚗 السيارات</Link>
+          <Link href="/offices" className="hover:text-[#e8b86d] transition-colors">🏢 المكاتب</Link>
+          <Link href="/requests" className="hover:text-[#e8b86d] transition-colors">📋 الطلبات</Link>
           <Link href="/areas" className="hover:text-[#e8b86d] transition-colors">المناطق</Link>
           <Link href="/about" className="hover:text-[#e8b86d] transition-colors">عن الموقع</Link>
-          <Link href="/contact" className="hover:text-[#e8b86d] transition-colors">تواصل معنا</Link>
           <div className="relative group">
             <button className="bg-[#e8b86d] text-[#16213e] px-4 py-2 rounded-lg font-bold hover:bg-yellow-400 transition-colors">
               + أضف إعلانك ▾
@@ -48,9 +49,10 @@ export default function Navbar() {
         <div className="md:hidden bg-[#0f172a] px-4 pb-4 flex flex-col gap-3 text-sm">
           <Link href="/listings" onClick={() => setMenuOpen(false)} className="hover:text-[#e8b86d] py-2 border-b border-white/10">🏠 العقارات</Link>
           <Link href="/cars" onClick={() => setMenuOpen(false)} className="hover:text-[#e8b86d] py-2 border-b border-white/10">🚗 السيارات</Link>
+          <Link href="/offices" onClick={() => setMenuOpen(false)} className="hover:text-[#e8b86d] py-2 border-b border-white/10">🏢 المكاتب</Link>
+          <Link href="/requests" onClick={() => setMenuOpen(false)} className="hover:text-[#e8b86d] py-2 border-b border-white/10">📋 الطلبات</Link>
           <Link href="/areas" onClick={() => setMenuOpen(false)} className="hover:text-[#e8b86d] py-2 border-b border-white/10">المناطق</Link>
           <Link href="/about" onClick={() => setMenuOpen(false)} className="hover:text-[#e8b86d] py-2 border-b border-white/10">عن الموقع</Link>
-          <Link href="/contact" onClick={() => setMenuOpen(false)} className="hover:text-[#e8b86d] py-2 border-b border-white/10">تواصل معنا</Link>
           <Link href="/listings/new" onClick={() => setMenuOpen(false)}
             className="bg-[#e8b86d] text-[#16213e] px-4 py-3 rounded-lg font-bold text-center mt-1">
             🏠 أضف عقاراً
